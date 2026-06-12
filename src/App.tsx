@@ -1,19 +1,10 @@
 import { useState } from 'react';
-import { Smartphone, MonitorPlay, Activity, HelpCircle, BookOpen, HardDriveUpload } from 'lucide-react';
-import MobileAppEmulator from './components/MobileAppEmulator';
+import { Activity, BookOpen, HardDriveUpload } from 'lucide-react';
 import AdminPortal from './components/AdminPortal';
 
 export default function App() {
   const [isOnline, setIsOnline] = useState(true);
   const [syncTrigger, setSyncTrigger] = useState(0);
-  
-  // Tab control on smaller viewports
-  const [activeLayout, setActiveLayout] = useState<'mobile' | 'admin'>('mobile');
-
-  // Callback whenever the mobile emulator uploads records to the server
-  const handleSyncCompleted = () => {
-    setSyncTrigger(prev => prev + 1);
-  };
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col justify-between">
@@ -25,61 +16,25 @@ export default function App() {
             🌳
           </div>
           <div>
-            <h1 className="text-sm font-black text-white uppercase tracking-wider leading-none">EWS Sawit Suite</h1>
-            <p className="text-[10px] text-slate-400 font-mono mt-1">Sensus Hama & Early Warning System (Offline-Ready)</p>
+            <h1 className="text-sm font-black text-white uppercase tracking-wider leading-none">EWS Sawit Admin</h1>
+            <p className="text-[10px] text-slate-400 font-mono mt-1">Portal Pemantauan Pusat Kebun</p>
           </div>
-        </div>
-
-        {/* Small Screen Layout Switcher */}
-        <div className="flex lg:hidden bg-slate-900 border border-slate-800 p-1 rounded-lg gap-1">
-          <button 
-            onClick={() => setActiveLayout('mobile')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${activeLayout === 'mobile' ? 'bg-lime-500 text-gray-950' : 'text-slate-400 hover:text-slate-200'}`}
-          >
-            <Smartphone className="w-3.5 h-3.5" />
-            <span>Ponsel Emulator</span>
-          </button>
-          
-          <button 
-            onClick={() => setActiveLayout('admin')}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition-all ${activeLayout === 'admin' ? 'bg-lime-500 text-gray-950' : 'text-slate-400 hover:text-slate-200'}`}
-          >
-            <MonitorPlay className="w-3.5 h-3.5" />
-            <span>Dashboard Pusat</span>
-          </button>
         </div>
 
         {/* Desktop guide indicators */}
         <div className="hidden lg:flex items-center gap-4 text-xs font-mono">
           <div className="flex items-center gap-1.5 text-lime-400">
             <Activity className="w-4 h-4 text-lime-400 animate-pulse" />
-            <span>Simulasi Sinkronisasi Aktif</span>
+            <span>Sistem Pemantauan Aktif</span>
           </div>
         </div>
       </header>
 
       {/* Main Working Area Panel */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-        
-        {/* Left Column: Mobile App Emulator */}
-        <div className={`lg:col-span-4 flex flex-col items-center justify-center ${activeLayout === 'mobile' ? 'block' : 'hidden lg:block'}`}>
-          <div className="w-full max-w-[340px] space-y-2 mb-4 text-center lg:text-left">
-            <h2 className="text-xs font-extrabold uppercase tracking-widest text-lime-400">Ponsel Mandiri Surveyor</h2>
-            <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
-              Interaksikan simulator android di bawah untuk login, memilih afdeling, mengambil selfie, menginput serangan, dan mensinkronisasikan LHM.
-            </p>
-          </div>
-          
-          <MobileAppEmulator 
-            isOnline={isOnline} 
-            setIsOnline={setIsOnline} 
-            onSyncCompleted={handleSyncCompleted} 
-          />
-        </div>
-
-        {/* Right Column: Central Dashboard HQ Admin */}
-        <div className={`lg:col-span-8 flex flex-col h-full ${activeLayout === 'admin' ? 'block' : 'hidden lg:block'}`}>
-          <div className="mb-4 space-y-1">
+      <main className="flex-1 w-full p-4 lg:p-6 flex flex-col items-center">
+        {/* Central Dashboard HQ Admin */}
+        <div className="w-full flex flex-col h-full max-w-[1400px]">
+          <div className="mb-4 space-y-1 text-center lg:text-left">
             <h2 className="text-xs font-extrabold uppercase tracking-widest text-blue-400">MONITOR SEKTOR PUSAT KORPORASI</h2>
             <p className="text-[11px] text-slate-400 leading-relaxed font-sans">
               Menampilkan data sensus yang telah berhasil disinkronkan oleh surveyor lapangan ke pusat. Sensus diperbarui secara instan.
@@ -91,12 +46,11 @@ export default function App() {
             syncTrigger={syncTrigger} 
           />
         </div>
-
       </main>
 
       {/* Guide Documentation Footer */}
       <footer className="bg-slate-950 border-t border-slate-800 py-6 px-6 text-slate-400">
-        <div className="max-w-7xl w-full mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 text-xs leading-relaxed">
+        <div className="max-w-7xl w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 text-xs leading-relaxed">
           
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 font-bold text-white uppercase text-[10px] tracking-wider">
@@ -104,27 +58,17 @@ export default function App() {
               <span>Pendekatan Sensus Luring (Offline)</span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Aplikasi dirancang dengan pendekatan <b>Offline-First</b>. Saat surveyor berada di dalam blok kebun sawit tanpa sinyal seluler, ponsel android menyimpan seluruh data RKH dan detail pohon sawit di database lokal.
+              Aplikasi mobile Android dirancang dengan pendekatan <b>Offline-First</b>. Saat surveyor berada di dalam blok kebun sawit tanpa sinyal seluler, ponsel android menyimpan seluruh data dan foto di penyimpanan lokal sebelum disinkronkan.
             </p>
           </div>
 
           <div className="space-y-2">
             <div className="flex items-center gap-1.5 font-bold text-white uppercase text-[10px] tracking-wider">
               <HardDriveUpload className="w-4 h-4 text-blue-400" />
-              <span>Sinkronisasi Data Dua Arah</span>
+              <span>Sinkronisasi Data Realtime</span>
             </div>
             <p className="text-[11px] text-slate-400">
-              Uji ketahanan luring ini dengan mematikan toggle <b>Ponsel Online</b>. Anda dapat melakukan survey penuh, merekam status, menyelesaikan sesi, lalu mengaktifkan kembali toggle internet untuk melakukan unggah ke portal pusat.
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5 font-bold text-white uppercase text-[10px] tracking-wider">
-              <HelpCircle className="w-4 h-4 text-purple-400" />
-              <span>Simulasi Kamera & Satelit GPS</span>
-            </div>
-            <p className="text-[11px] text-slate-400">
-              Tekan tombol kamera untuk menguji tangkapan selfie / bukti foto daun sawit berpenyakit, atau pilih salah satu template wajah/hama yang disediakan jika akses webcam browser Anda diblokir.
+              Admin Portal ini terhubung langsung dengan backend pusat. Setiap kali surveyor melakukan sinkronisasi dari aplikasi mobile Android, data dan foto hama akan langsung muncul di panel ini.
             </p>
           </div>
 
@@ -132,7 +76,7 @@ export default function App() {
 
         <div className="pt-6 mt-6 border-t border-slate-800/60 max-w-7xl w-full mx-auto flex flex-col sm:flex-row justify-between items-center gap-3 text-[10px] text-slate-500">
           <span>© 2026 EWS Sawit - Sistem Peringatan Dini Kebun Sawit Utama Nusantara. All rights reserved.</span>
-          <span className="font-mono text-slate-600">Built with Express.js + React + Leaflet Map WebView</span>
+          <span className="font-mono text-slate-600">Built with Express.js + React + Leaflet Map</span>
         </div>
       </footer>
 

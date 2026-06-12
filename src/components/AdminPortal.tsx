@@ -22,17 +22,33 @@ export default function AdminPortal({ isOnline, syncTrigger }: AdminPortalProps)
   const leafletAdminMapRef = useRef<any>(null);
   const adminMapContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const [afdelings, setAfdelings] = useState<any[]>([]);
+
   // Fetch Dashboard Stats from Express Backend
   const fetchDashboardStats = () => {
     setIsLoading(true);
-    fetch('/api/admin/dashboard')
+    
+    // Fetch stats
+    fetch('https://ews-sawit-backend.onrender.com/api/admin/dashboard')
       .then(res => res.json())
       .then(data => {
         setStats(data);
-        setIsLoading(false);
       })
       .catch(err => {
         console.error("Gagal menjangkau API Admin Dashboard:", err);
+      });
+
+    // Fetch resources
+    fetch('https://ews-sawit-backend.onrender.com/api/sync/resources')
+      .then(res => res.json())
+      .then(data => {
+        if (data.afdelings) {
+          setAfdelings(data.afdelings);
+        }
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error("Gagal menjangkau API Resources:", err);
         setIsLoading(false);
       });
   };
@@ -64,17 +80,13 @@ export default function AdminPortal({ isOnline, syncTrigger }: AdminPortalProps)
           attribution: '© OpenStreetMap'
         }).addTo(map);
 
-        // Pre-defined boundaries polygons for Afdelings
-        const afdColorObj = { 'A': '#10b981', 'B': '#3b82f6', 'C': '#a855f7' };
-        const afdelingCentres = [
-          { id: 'A', lat: -1.258, lng: 101.425, name: 'Afdeling A' },
-          { id: 'B', lat: -1.265, lng: 101.442, name: 'Afdeling B' },
-          { id: 'C', lat: -1.250, lng: 101.412, name: 'Afdeling C' }
-        ];
-
+        // Dynamic boundaries polygons for Afdelings
+        const colors = ['#10b981', '#3b82f6', '#a855f7', '#f59e0b', '#ef4444', '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#8b5cf6'];
+        
         // Draw boundaries for all Afdelings as overlay indicators
-        afdelingCentres.forEach(afd => {
-          const c = [afd.lat, afd.lng];
+        afdelings.forEach((afd, index) => {
+          const color = colors[index % colors.length];
+          const c = [afd.centerLat || -1.258, afd.centerLng || 101.425];
           const latOffset = 0.004;
           const lngOffset = 0.004;
           
@@ -86,8 +98,8 @@ export default function AdminPortal({ isOnline, syncTrigger }: AdminPortalProps)
           ];
 
           L.polygon(coords, {
-            color: (afdColorObj as any)[afd.id] || '#64748b',
-            fillColor: (afdColorObj as any)[afd.id] || '#64748b',
+            color: color,
+            fillColor: color,
             fillOpacity: 0.08,
             weight: 1.5,
             dashArray: '3, 4'
@@ -148,7 +160,7 @@ export default function AdminPortal({ isOnline, syncTrigger }: AdminPortalProps)
 
       }, 150);
     }
-  }, [activeTab, stats, selectedMappingFilter, focusedMarker]);
+  }, [activeTab, stats, selectedMappingFilter, focusedMarker, afdelings]);
 
   const triggerZoomOnMapMarker = (markerInfo: any) => {
     setFocusedMarker(markerInfo);
