@@ -322,6 +322,14 @@ app.post('/api/auth/login', async (req, res) => {
   }
 
   res.json({
+    success: true,
+    token: "dummy-jwt-token-12345",
+    user: {
+      nik: user.nik,
+      name: user.name,
+      role: user.role
+    },
+    // Backwards compatibility for web emulator
     nik: user.nik,
     name: user.name,
     role: user.role
