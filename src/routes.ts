@@ -19,23 +19,27 @@ export const setupRoutes = async (server: FastifyInstance) => {
   // ==========================================
   server.post('/login', async (request, reply) => {
     const { email, password } = request.body as any;
+    server.log.info(`[LOGIN ATTEMPT] email: "${email}"`);
     if (!email || !password) {
       return reply.status(400).send({ success: false, error: 'Email and password are required' });
     }
 
     try {
-      const userList = await db.select().from(users).where(eq(users.email, email));
+      const userList = await db.select().from(users).where(eq(users.email, email.trim()));
       if (userList.length === 0) {
-        return reply.status(401).send({ success: false, error: 'Invalid credentials' });
+        server.log.warn(`[LOGIN FAILED] user not found for email: "${email}"`);
+        return reply.status(401).send({ success: false, error: 'Invalid credentials (user not found)' });
       }
 
       const user = userList[0];
       const isMatch = await bcrypt.compare(password, user.passwordHash);
       if (!isMatch) {
-        return reply.status(401).send({ success: false, error: 'Invalid credentials' });
+        server.log.warn(`[LOGIN FAILED] password mismatch for email: "${email}"`);
+        return reply.status(401).send({ success: false, error: 'Invalid credentials (password mismatch)' });
       }
 
       if (!user.isActive) {
+        server.log.warn(`[LOGIN FAILED] user is inactive: "${email}"`);
         return reply.status(403).send({ success: false, error: 'Account is deactivated' });
       }
 
@@ -89,8 +93,9 @@ export const setupRoutes = async (server: FastifyInstance) => {
 
   // Protect the following routes
   server.addHook('preHandler', async (request, reply) => {
+    server.log.info(`[PRE-HANDLER] method: ${request.method}, url: ${request.url}, routeOptions.url: ${request.routeOptions.url}`);
     // Skip auth for login and register
-    if (request.routeOptions.url === '/api/v1/login' || request.routeOptions.url === '/api/v1/register') {
+    if (request.url.includes('/login') || request.url.includes('/register')) {
       return;
     }
     await verifyAuth(request, reply);
