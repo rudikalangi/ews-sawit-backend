@@ -1,8 +1,0 @@
-{
-  "name": "EWS Sawit Survey",
-  "description": "Early Warning System (EWS) Offline-First Palm Oil Plantation Survey Application with Live Synchronization",
-  "requestFramePermissions": ["camera", "geolocation"],
-  "majorCapabilities": [
-    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
-  ]
-}
