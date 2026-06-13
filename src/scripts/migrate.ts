@@ -23,6 +23,10 @@ async function runMigrations() {
   try {
     const db = drizzle(pool);
     
+    console.log('Enabling PostGIS extension if not exists...');
+    const { sql } = require('drizzle-orm');
+    await db.execute(sql`CREATE EXTENSION IF NOT EXISTS postgis;`);
+    
     console.log('Resolved migrations folder:', path.resolve(__dirname, '../../drizzle'));
     console.log('Running migrations...');
     await migrate(db, { migrationsFolder: path.resolve(__dirname, '../../drizzle') });
