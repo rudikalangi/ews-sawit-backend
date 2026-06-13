@@ -90,7 +90,7 @@ export const setupRoutes = async (server: FastifyInstance) => {
   // Protect the following routes
   server.addHook('preHandler', async (request, reply) => {
     // Skip auth for login and register
-    if (request.routeOptions.url === '/login' || request.routeOptions.url === '/register') {
+    if (request.routeOptions.url === '/api/v1/login' || request.routeOptions.url === '/api/v1/register') {
       return;
     }
     await verifyAuth(request, reply);
