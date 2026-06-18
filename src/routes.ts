@@ -87,6 +87,7 @@ export const setupRoutes = async (server: FastifyInstance) => {
 
       const passwordHash = await bcrypt.hash(password, 10);
       const [newUser] = await db.insert(users).values({
+        id: randomUUID(),
         email,
         passwordHash,
         nama,
@@ -250,7 +251,7 @@ export const setupRoutes = async (server: FastifyInstance) => {
               await db.insert(baris).values({
                 id: expectedBarisId,
                 blokId: blokId,
-                nama: `Baris ${barisStr}`
+                nomorBaris: parseInt(barisStr, 10) || 0
               });
             }
             
@@ -336,7 +337,9 @@ export const setupRoutes = async (server: FastifyInstance) => {
     try {
       const results = [];
       for (const p of payload.pokokList) {
+        const pokokIdStr = p.id || `${p.barisId}_${p.nomorPokok}`;
         const [newPokok] = await db.insert(pokok).values({
+          id: pokokIdStr,
           barisId: p.barisId,
           nomorPokok: p.nomorPokok,
           latitude: p.latitude,
