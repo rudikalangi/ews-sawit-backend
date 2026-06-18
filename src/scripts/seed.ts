@@ -5,36 +5,30 @@ import * as path from 'path';
 import { sql } from 'drizzle-orm';
 
 const GEOJSON_PATH = path.resolve(__dirname, '../../../BATAS_BLOCK_GEOJSON/BATAS_BLOCK_GEOJSON.geojson');
-const AFDELING_GEOJSON_PATH = path.resolve(__dirname, '../../../BATAS_AFDELING_&_BLOCK/batas_afdeling.geojson');
 
 async function seed() {
   console.log('Starting GIS seed process...');
 
   // 1. Create Company
-  const [company] = await db.insert(companies).values({
+  await db.insert(companies).values({
+    id: '1',
     name: 'PT Dwiwira Lestari Jaya',
     code: 'DLJ'
-  }).returning();
-  
-  console.log(`Created Company: ${company.name}`);
+  }).onConflictDoNothing();
+  const company = (await db.select().from(companies).limit(1))[0];
+  console.log(`Created/Fetched Company: ${company.name}`);
 
   // 2. Mapping WERKS to Estate
-  // From our analysis:
-  // 5421 -> Estate INTI (A-G) -> DLJ 1
-  // 5431 -> PLASMA Kop. Sawit Sejahtera
-  // 5432 -> PLASMA Kop. Biatan Bersama
-  // 5433 -> PLASMA Kop. Biatan Sejahtera
-  
   const estateMap: Record<string, string> = {};
   
   const insertEstate = async (name: string, code: string) => {
-    const [estate] = await db.insert(estates).values({
+    await db.insert(estates).values({
+      id: code,
       companyId: company.id,
       name,
       code,
-    }).returning();
-    estateMap[code] = estate.id;
-    return estate;
+    }).onConflictDoNothing();
+    estateMap[code] = code;
   };
 
   await insertEstate('Estate INTI DLJ 1', '5421');
@@ -44,64 +38,42 @@ async function seed() {
   
   console.log('Created Estates.');
 
-  // 3. Process Afdelings (from batas_afdeling.geojson)
-  // Need to handle duplicates for C (5421C) and F (5421F)
-  const afdRaw = fs.readFileSync(AFDELING_GEOJSON_PATH, 'utf-8');
-  const afdData = JSON.parse(afdRaw);
+  const blkRaw = fs.readFileSync(GEOJSON_PATH, 'utf-8');
+  const blkData = JSON.parse(blkRaw);
   
   const afdelingMap: Record<string, string> = {};
   
-  // Deduplicate and aggregate geometry logic using PostGIS would be complex directly through ORM inserts
-  // Instead, we can group them by AFD_CODE and ST_Union their geometries.
+  console.log(`Processing ${blkData.features.length} features for Afdelings and Bloks...`);
   
-  // We'll insert them one by one. If it already exists in our map, we run an update with ST_Union.
-  console.log(`Processing ${afdData.features.length} Afdeling features...`);
-  
-  for (const feature of afdData.features) {
+  for (const feature of blkData.features) {
     const props = feature.properties;
     const afdCode = props.AFD_CODE;
     const werks = props.WERKS;
     const estateId = estateMap[werks];
     
     if (!estateId) {
-      console.warn(`Estate not found for WERKS: ${werks}`);
       continue;
     }
-    
-    const geomJson = JSON.stringify(feature.geometry);
 
-    if (afdelingMap[afdCode]) {
-      // Duplicate found (C or F), ST_Union the geometry
-      const existingAfdId = afdelingMap[afdCode];
-      await db.execute(sql`
-        UPDATE afdelings 
-        SET boundary_polygon = ST_Multi(ST_Union(boundary_polygon, ST_GeomFromGeoJSON(${geomJson})))
-        WHERE id = ${existingAfdId}
-      `);
-      console.log(`Updated Afdeling (ST_Union) for ${afdCode}`);
-    } else {
+    if (!afdelingMap[afdCode]) {
       // New Afdeling
-      const [afd] = await db.insert(afdelings).values({
+      await db.insert(afdelings).values({
+        id: afdCode,
         estateId,
-        name: props.AFD,
+        name: props.AFD || afdCode,
         code: afdCode,
         tipe: props.KEBUN,
         rayon: props.RAYON?.toString(),
         luasHa: props.LUAS || props.HA,
-        // Drizzle allows passing SQL fragments for geometry
-        boundaryPolygon: sql`ST_Multi(ST_GeomFromGeoJSON(${geomJson}))` as any
-      }).returning();
+        // Optional geometry for afdeling
+      }).onConflictDoNothing();
       
-      afdelingMap[afdCode] = afd.id;
-      console.log(`Inserted Afdeling: ${afd.name} (${afdCode})`);
+      afdelingMap[afdCode] = afdCode;
+      console.log(`Inserted/Fetched Afdeling: ${props.AFD || afdCode} (${afdCode})`);
     }
   }
 
   // 4. Process Blocks
-  const blkRaw = fs.readFileSync(GEOJSON_PATH, 'utf-8');
-  const blkData = JSON.parse(blkRaw);
-  
-  console.log(`Processing ${blkData.features.length} Blok features...`);
   let countBlok = 0;
   
   for (const feature of blkData.features) {
@@ -116,7 +88,11 @@ async function seed() {
     
     const geomJson = JSON.stringify(feature.geometry);
     
+    const joinId = props.JOIN || '';
+    const blokId = joinId.length > 0 ? joinId : `${afdCode}_${props.BLOCK_NAME || ''}`;
+
     await db.insert(bloks).values({
+      id: blokId,
       afdelingId: afdId,
       name: props.BLOCK_NAME,
       code: props.BLOCK_CODE?.toString(),
@@ -128,7 +104,7 @@ async function seed() {
       luasHa: props.HA,
       totalPokokGis: props.POKOK,
       boundaryPolygon: sql`ST_Multi(ST_GeomFromGeoJSON(${geomJson}))` as any
-    });
+    }).onConflictDoNothing();
     
     countBlok++;
   }
