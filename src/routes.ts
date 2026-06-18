@@ -234,11 +234,13 @@ export const setupRoutes = async (server: FastifyInstance) => {
         
         // Auto-create baris and pokok if using the composite ID format
         if (finalPokokId && finalPokokId.includes('_')) {
-          const parts = finalPokokId.split('_');
-          if (parts.length >= 3) {
-            const blokId = parts[0];
-            const barisStr = parts[1];
-            const nomorPokokStr = parts[2];
+          const lastUnderscore = finalPokokId.lastIndexOf('_');
+          const secondLastUnderscore = finalPokokId.lastIndexOf('_', lastUnderscore - 1);
+          
+          if (lastUnderscore > 0 && secondLastUnderscore > 0) {
+            const blokId = finalPokokId.substring(0, secondLastUnderscore);
+            const barisStr = finalPokokId.substring(secondLastUnderscore + 1, lastUnderscore);
+            const nomorPokokStr = finalPokokId.substring(lastUnderscore + 1);
             
             const expectedBarisId = `${blokId}_${barisStr}`;
             
