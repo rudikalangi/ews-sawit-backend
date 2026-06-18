@@ -9,9 +9,19 @@ import { sql } from 'drizzle-orm';
 import { verifyAuth } from './middleware/auth';
 import * as bcrypt from 'bcrypt';
 import * as jwt from 'jsonwebtoken';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { randomUUID } from 'crypto';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-ews-rnd-key-2024';
 
+const s3Client = new S3Client({
+  region: 'auto',
+  endpoint: process.env.R2_ENDPOINT!,
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
+  },
+});
 export const setupRoutes = async (server: FastifyInstance) => {
 
   // ==========================================
@@ -101,6 +111,39 @@ export const setupRoutes = async (server: FastifyInstance) => {
     await verifyAuth(request, reply);
   });
 
+
+  // ==========================================
+  // UPLOAD FILE ENDPOINT
+  // ==========================================
+  server.post('/upload', async (request, reply) => {
+    try {
+      const data = await request.file();
+      if (!data) {
+        return reply.status(400).send({ success: false, error: 'No file uploaded' });
+      }
+
+      const buffer = await data.toBuffer();
+      const ext = data.filename.split('.').pop();
+      const filename = `${Date.now()}-${randomUUID()}.${ext}`;
+
+      await s3Client.send(new PutObjectCommand({
+        Bucket: process.env.R2_BUCKET_NAME,
+        Key: filename,
+        Body: buffer,
+        ContentType: data.mimetype
+      }));
+
+      // In Cloudflare R2, if you don't have a public domain, you can't easily access it. 
+      // We will save the S3 style URL or Public R2 dev URL.
+      // E.g. https://<ACCOUNT_ID>.r2.cloudflarestorage.com/<BUCKET_NAME>/<FILENAME>
+      const publicUrl = `${process.env.R2_ENDPOINT}/${process.env.R2_BUCKET_NAME}/${filename}`;
+
+      return reply.send({ success: true, url: publicUrl });
+    } catch (error) {
+      server.log.error(error);
+      return reply.status(500).send({ success: false, error: 'Failed to upload to R2' });
+    }
+  });
 
   // ==========================================
   // MASTER DATA SYNC ENDPOINT
