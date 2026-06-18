@@ -1,23 +1,23 @@
 CREATE TABLE "afdelings" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"estate_id" uuid NOT NULL,
+	"id" varchar(255) PRIMARY KEY NOT NULL,
+	"estate_id" varchar(255) NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"code" varchar(50),
 	"tipe" varchar(50),
 	"rayon" varchar(50),
 	"luas_ha" real,
-	"boundary_polygon" geometry(point)
+	"boundary_polygon" geometry(MultiPolygon, 4326)
 );
 --> statement-breakpoint
 CREATE TABLE "baris" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"blok_id" uuid NOT NULL,
+	"id" varchar(255) PRIMARY KEY NOT NULL,
+	"blok_id" varchar(255) NOT NULL,
 	"nomor_baris" integer NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "bloks" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"afdeling_id" uuid NOT NULL,
+	"id" varchar(255) PRIMARY KEY NOT NULL,
+	"afdeling_id" varchar(255) NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"code" varchar(50),
 	"tahun_tanam" integer,
@@ -27,23 +27,23 @@ CREATE TABLE "bloks" (
 	"sph" real,
 	"luas_ha" real,
 	"total_pokok_gis" integer,
-	"boundary_polygon" geometry(point)
+	"boundary_polygon" geometry(MultiPolygon, 4326)
 );
 --> statement-breakpoint
 CREATE TABLE "companies" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" varchar(255) PRIMARY KEY NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"code" varchar(50)
 );
 --> statement-breakpoint
 CREATE TABLE "estates" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"company_id" uuid NOT NULL,
+	"id" varchar(255) PRIMARY KEY NOT NULL,
+	"company_id" varchar(255) NOT NULL,
 	"name" varchar(255) NOT NULL,
 	"code" varchar(50),
 	"latitude" real,
 	"longitude" real,
-	"boundary_polygon" geometry(point)
+	"boundary_polygon" geometry(MultiPolygon, 4326)
 );
 --> statement-breakpoint
 CREATE TABLE "foto_bukti" (
@@ -55,7 +55,7 @@ CREATE TABLE "foto_bukti" (
 );
 --> statement-breakpoint
 CREATE TABLE "hama_penyakit" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"id" varchar(255) PRIMARY KEY NOT NULL,
 	"nama_id" varchar(255) NOT NULL,
 	"nama_latin" varchar(255),
 	"nama_en" varchar(255),
@@ -69,8 +69,8 @@ CREATE TABLE "hama_penyakit" (
 --> statement-breakpoint
 CREATE TABLE "inspeksi" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"pokok_id" uuid NOT NULL,
-	"user_id" uuid NOT NULL,
+	"pokok_id" varchar(255) NOT NULL,
+	"user_id" varchar(255) NOT NULL,
 	"tanggal_inspeksi" timestamp NOT NULL,
 	"latitude" real,
 	"longitude" real,
@@ -83,7 +83,7 @@ CREATE TABLE "inspeksi" (
 CREATE TABLE "inspeksi_detail" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"inspeksi_id" uuid NOT NULL,
-	"hama_penyakit_id" uuid NOT NULL,
+	"hama_penyakit_id" varchar(255) NOT NULL,
 	"tingkat_serangan" varchar(50),
 	"persentase_serangan" integer,
 	"bagian_terserang" varchar(255),
@@ -91,20 +91,20 @@ CREATE TABLE "inspeksi_detail" (
 );
 --> statement-breakpoint
 CREATE TABLE "pokok" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"baris_id" uuid NOT NULL,
+	"id" varchar(255) PRIMARY KEY NOT NULL,
+	"baris_id" varchar(255) NOT NULL,
 	"nomor_pokok" integer NOT NULL,
 	"latitude" real,
 	"longitude" real,
 	"status" varchar(50) DEFAULT 'sehat',
 	"gps_recorded_at" timestamp,
-	"gps_recorded_by" uuid
+	"gps_recorded_by" varchar(255)
 );
 --> statement-breakpoint
 CREATE TABLE "treatment" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"inspeksi_detail_id" uuid NOT NULL,
-	"user_id" uuid NOT NULL,
+	"user_id" varchar(255) NOT NULL,
 	"jenis_treatment" varchar(100),
 	"bahan_kimia" varchar(255),
 	"dosis" real,
@@ -115,14 +115,14 @@ CREATE TABLE "treatment" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"firebase_uid" varchar(128) NOT NULL,
+	"id" varchar(255) PRIMARY KEY NOT NULL,
 	"nama" varchar(255) NOT NULL,
 	"email" varchar(255) NOT NULL,
+	"password_hash" varchar(255) NOT NULL,
 	"role" varchar(50) NOT NULL,
-	"estate_id" uuid,
+	"estate_id" varchar(255),
 	"is_active" boolean DEFAULT true,
-	CONSTRAINT "users_firebase_uid_unique" UNIQUE("firebase_uid")
+	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
 ALTER TABLE "afdelings" ADD CONSTRAINT "afdelings_estate_id_estates_id_fk" FOREIGN KEY ("estate_id") REFERENCES "public"."estates"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint

@@ -1,5 +1,6 @@
 import { db } from '../db';
 import { hamaPenyakit } from '../db/schema';
+import crypto from 'crypto';
 
 const masterData = [
   // Hama
@@ -95,7 +96,7 @@ async function seedHamaPenyakit() {
   console.log('Seeding Master Data Hama & Penyakit...');
   
   for (const item of masterData) {
-    await db.insert(hamaPenyakit).values(item).onConflictDoNothing();
+    await db.insert(hamaPenyakit).values({ id: crypto.randomUUID(), ...item }).onConflictDoNothing();
   }
   
   console.log('Seeding Hama & Penyakit completed successfully!');

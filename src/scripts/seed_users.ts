@@ -10,6 +10,7 @@ async function seedUsers() {
   // We use insert onConflictDoNothing in case it already exists, or just a simple insert
   try {
     await db.insert(users).values({
+      id: 'USR01',
       nama: 'Administrator',
       email: 'admin@ews.com',
       passwordHash: passwordHash,

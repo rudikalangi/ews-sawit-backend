@@ -23,14 +23,14 @@ const customGeometry = customType<{ data: string; driverData: string }>({
 });
 
 export const companies = pgTable('companies', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: varchar('id', { length: 255 }).primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   code: varchar('code', { length: 50 }),
 });
 
 export const estates = pgTable('estates', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  companyId: uuid('company_id').references(() => companies.id).notNull(),
+  id: varchar('id', { length: 255 }).primaryKey(),
+  companyId: varchar('company_id', { length: 255 }).references(() => companies.id).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   code: varchar('code', { length: 50 }),
   latitude: real('latitude'),
@@ -39,8 +39,8 @@ export const estates = pgTable('estates', {
 });
 
 export const afdelings = pgTable('afdelings', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  estateId: uuid('estate_id').references(() => estates.id).notNull(),
+  id: varchar('id', { length: 255 }).primaryKey(),
+  estateId: varchar('estate_id', { length: 255 }).references(() => estates.id).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   code: varchar('code', { length: 50 }),
   tipe: varchar('tipe', { length: 50 }), // INTI / PLASMA
@@ -50,8 +50,8 @@ export const afdelings = pgTable('afdelings', {
 });
 
 export const bloks = pgTable('bloks', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  afdelingId: uuid('afdeling_id').references(() => afdelings.id).notNull(),
+  id: varchar('id', { length: 255 }).primaryKey(),
+  afdelingId: varchar('afdeling_id', { length: 255 }).references(() => afdelings.id).notNull(),
   name: varchar('name', { length: 255 }).notNull(),
   code: varchar('code', { length: 50 }),
   tahunTanam: integer('tahun_tanam'),
@@ -65,34 +65,34 @@ export const bloks = pgTable('bloks', {
 });
 
 export const baris = pgTable('baris', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  blokId: uuid('blok_id').references(() => bloks.id).notNull(),
+  id: varchar('id', { length: 255 }).primaryKey(),
+  blokId: varchar('blok_id', { length: 255 }).references(() => bloks.id).notNull(),
   nomorBaris: integer('nomor_baris').notNull(),
 });
 
 export const users = pgTable('users', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: varchar('id', { length: 255 }).primaryKey(),
   nama: varchar('nama', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   passwordHash: varchar('password_hash', { length: 255 }).notNull(),
   role: varchar('role', { length: 50 }).notNull(), // admin, manajer, asisten, mandor
-  estateId: uuid('estate_id').references(() => estates.id),
+  estateId: varchar('estate_id', { length: 255 }).references(() => estates.id),
   isActive: boolean('is_active').default(true),
 });
 
 export const pokok = pgTable('pokok', {
-  id: uuid('id').defaultRandom().primaryKey(),
-  barisId: uuid('baris_id').references(() => baris.id).notNull(),
+  id: varchar('id', { length: 255 }).primaryKey(),
+  barisId: varchar('baris_id', { length: 255 }).references(() => baris.id).notNull(),
   nomorPokok: integer('nomor_pokok').notNull(),
   latitude: real('latitude'),
   longitude: real('longitude'),
   status: varchar('status', { length: 50 }).default('sehat'), // sehat, terserang, mati, tidak_produktif
   gpsRecordedAt: timestamp('gps_recorded_at'),
-  gpsRecordedBy: uuid('gps_recorded_by').references(() => users.id),
+  gpsRecordedBy: varchar('gps_recorded_by', { length: 255 }).references(() => users.id),
 });
 
 export const hamaPenyakit = pgTable('hama_penyakit', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: varchar('id', { length: 255 }).primaryKey(),
   namaId: varchar('nama_id', { length: 255 }).notNull(),
   namaLatin: varchar('nama_latin', { length: 255 }),
   namaEn: varchar('nama_en', { length: 255 }),
@@ -106,8 +106,8 @@ export const hamaPenyakit = pgTable('hama_penyakit', {
 
 export const inspeksi = pgTable('inspeksi', {
   id: uuid('id').defaultRandom().primaryKey(),
-  pokokId: uuid('pokok_id').references(() => pokok.id).notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  pokokId: varchar('pokok_id', { length: 255 }).references(() => pokok.id).notNull(),
+  userId: varchar('user_id', { length: 255 }).references(() => users.id).notNull(),
   tanggalInspeksi: timestamp('tanggal_inspeksi').notNull(),
   latitude: real('latitude'),
   longitude: real('longitude'),
@@ -120,7 +120,7 @@ export const inspeksi = pgTable('inspeksi', {
 export const inspeksiDetail = pgTable('inspeksi_detail', {
   id: uuid('id').defaultRandom().primaryKey(),
   inspeksiId: uuid('inspeksi_id').references(() => inspeksi.id).notNull(),
-  hamaPenyakitId: uuid('hama_penyakit_id').references(() => hamaPenyakit.id).notNull(),
+  hamaPenyakitId: varchar('hama_penyakit_id', { length: 255 }).references(() => hamaPenyakit.id).notNull(),
   tingkatSerangan: varchar('tingkat_serangan', { length: 50 }), // ringan, sedang, berat, sangat_berat
   persentaseSerangan: integer('persentase_serangan'),
   bagianTerserang: varchar('bagian_terserang', { length: 255 }), // daun, batang, akar, buah, pelepah, pucuk (comma separated)
@@ -138,7 +138,7 @@ export const fotoBukti = pgTable('foto_bukti', {
 export const treatment = pgTable('treatment', {
   id: uuid('id').defaultRandom().primaryKey(),
   inspeksiDetailId: uuid('inspeksi_detail_id').references(() => inspeksiDetail.id).notNull(),
-  userId: uuid('user_id').references(() => users.id).notNull(),
+  userId: varchar('user_id', { length: 255 }).references(() => users.id).notNull(),
   jenisTreatment: varchar('jenis_treatment', { length: 100 }), // kimia, biologi, mekanis, kultur_teknis
   bahanKimia: varchar('bahan_kimia', { length: 255 }),
   dosis: real('dosis'),

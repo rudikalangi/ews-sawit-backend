@@ -5,29 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1781317926476,
-      "tag": "0000_sparkling_zodiak",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1781318353481,
-      "tag": "0001_soft_black_knight",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1781324939253,
-      "tag": "0002_mixed_sunset_bain",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1781324982964,
-      "tag": "0003_closed_sinister_six",
+      "when": 1781791054991,
+      "tag": "0000_sweet_snowbird",
       "breakpoints": true
     }
   ]

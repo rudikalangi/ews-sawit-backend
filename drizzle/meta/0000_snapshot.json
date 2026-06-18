@@ -1,5 +1,5 @@
 {
-  "id": "23f7a1ae-d8f7-47f9-b8d5-aab5a5e77ac6",
+  "id": "862a0b9a-3239-4649-b782-99559098f364",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,14 +10,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "estate_id": {
           "name": "estate_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -53,7 +52,7 @@
         },
         "boundary_polygon": {
           "name": "boundary_polygon",
-          "type": "geometry(point)",
+          "type": "geometry(MultiPolygon, 4326)",
           "primaryKey": false,
           "notNull": false
         }
@@ -86,14 +85,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "blok_id": {
           "name": "blok_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -132,14 +130,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "afdeling_id": {
           "name": "afdeling_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -199,7 +196,7 @@
         },
         "boundary_polygon": {
           "name": "boundary_polygon",
-          "type": "geometry(point)",
+          "type": "geometry(MultiPolygon, 4326)",
           "primaryKey": false,
           "notNull": false
         }
@@ -232,10 +229,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "name": {
           "name": "name",
@@ -264,14 +260,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "company_id": {
           "name": "company_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -301,7 +296,7 @@
         },
         "boundary_polygon": {
           "name": "boundary_polygon",
-          "type": "geometry(point)",
+          "type": "geometry(MultiPolygon, 4326)",
           "primaryKey": false,
           "notNull": false
         }
@@ -392,10 +387,9 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "nama_id": {
           "name": "nama_id",
@@ -474,13 +468,13 @@
         },
         "pokok_id": {
           "name": "pokok_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
         "user_id": {
           "name": "user_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -584,7 +578,7 @@
         },
         "hama_penyakit_id": {
           "name": "hama_penyakit_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -654,14 +648,13 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
+          "notNull": true
         },
         "baris_id": {
           "name": "baris_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -698,7 +691,7 @@
         },
         "gps_recorded_by": {
           "name": "gps_recorded_by",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         }
@@ -757,7 +750,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": true
         },
@@ -845,15 +838,8 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "firebase_uid": {
-          "name": "firebase_uid",
-          "type": "varchar(128)",
-          "primaryKey": false,
           "notNull": true
         },
         "nama": {
@@ -868,6 +854,12 @@
           "primaryKey": false,
           "notNull": true
         },
+        "password_hash": {
+          "name": "password_hash",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
         "role": {
           "name": "role",
           "type": "varchar(50)",
@@ -876,7 +868,7 @@
         },
         "estate_id": {
           "name": "estate_id",
-          "type": "uuid",
+          "type": "varchar(255)",
           "primaryKey": false,
           "notNull": false
         },
@@ -906,11 +898,11 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_firebase_uid_unique": {
-          "name": "users_firebase_uid_unique",
+        "users_email_unique": {
+          "name": "users_email_unique",
           "nullsNotDistinct": false,
           "columns": [
-            "firebase_uid"
+            "email"
           ]
         }
       },
