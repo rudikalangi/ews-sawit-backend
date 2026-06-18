@@ -230,8 +230,46 @@ export const setupRoutes = async (server: FastifyInstance) => {
       for (const item of payload.inspeksi) {
         // Assume item contains: pokokId, userId, tanggalInspeksi, latitude, longitude, catatan, details (array)
         
+        let finalPokokId = item.pokokId;
+        
+        // Auto-create baris and pokok if using the composite ID format
+        if (finalPokokId && finalPokokId.includes('_')) {
+          const parts = finalPokokId.split('_');
+          if (parts.length >= 3) {
+            const blokId = parts[0];
+            const barisStr = parts[1];
+            const nomorPokokStr = parts[2];
+            
+            const expectedBarisId = `${blokId}_${barisStr}`;
+            
+            // Check if baris exists
+            const existingBaris = await db.select().from(baris).where(eq(baris.id, expectedBarisId)).limit(1);
+            if (existingBaris.length === 0) {
+              await db.insert(baris).values({
+                id: expectedBarisId,
+                blokId: blokId,
+                nama: `Baris ${barisStr}`
+              });
+            }
+            
+            // Check if pokok exists
+            const existingPokok = await db.select().from(pokok).where(eq(pokok.id, finalPokokId)).limit(1);
+            if (existingPokok.length === 0) {
+              await db.insert(pokok).values({
+                id: finalPokokId,
+                barisId: expectedBarisId,
+                nomorPokok: parseInt(nomorPokokStr, 10) || 0,
+                latitude: item.latitude,
+                longitude: item.longitude,
+                status: 'sehat',
+                gpsRecordedAt: new Date(item.tanggalInspeksi)
+              });
+            }
+          }
+        }
+        
         const [newInspeksi] = await db.insert(inspeksi).values({
-          pokokId: item.pokokId,
+          pokokId: finalPokokId,
           userId: item.userId,
           tanggalInspeksi: new Date(item.tanggalInspeksi),
           latitude: item.latitude,
