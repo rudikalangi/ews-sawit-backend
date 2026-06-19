@@ -285,9 +285,21 @@ export const setupRoutes = async (server: FastifyInstance) => {
         const detailsResult = [];
         if (item.details && Array.isArray(item.details)) {
           for (const det of item.details) {
+            let validHamaPenyakitId = det.hamaPenyakitId;
+            
+            // Check if hamaPenyakitId exists in the DB
+            const existingHama = await db.select().from(hamaPenyakit).where(eq(hamaPenyakit.id, validHamaPenyakitId));
+            if (existingHama.length === 0) {
+              // If not found (e.g., 'HP01' from old cache), fallback to the first available HamaPenyakit
+              const fallback = await db.select().from(hamaPenyakit).limit(1);
+              if (fallback.length > 0) {
+                validHamaPenyakitId = fallback[0].id;
+              }
+            }
+
             const [newDetail] = await db.insert(inspeksiDetail).values({
               inspeksiId: newInspeksi.id,
-              hamaPenyakitId: det.hamaPenyakitId,
+              hamaPenyakitId: validHamaPenyakitId,
               tingkatSerangan: det.tingkatSerangan,
               persentaseSerangan: det.persentaseSerangan,
               bagianTerserang: det.bagianTerserang,
