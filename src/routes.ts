@@ -17,6 +17,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'super-secret-ews-rnd-key-2024';
 const s3Client = new S3Client({
   region: 'auto',
   endpoint: process.env.R2_ENDPOINT!,
+  forcePathStyle: true,
   credentials: {
     accessKeyId: process.env.R2_ACCESS_KEY_ID!,
     secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
