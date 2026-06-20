@@ -212,6 +212,29 @@ export const setupRoutes = async (server: FastifyInstance) => {
   });
 
   // ==========================================
+  // GET ALL INSPECTION DATA (FOR SUPERADMIN HEATMAP)
+  // ==========================================
+  server.get('/sync/inspeksi/all', async (request, reply) => {
+    try {
+      const inspeksiData = await db.select().from(inspeksi);
+      const detailData = await db.select().from(inspeksiDetail);
+      const fotoData = await db.select().from(fotoBukti);
+
+      return reply.send({
+        success: true,
+        data: {
+          inspeksi: inspeksiData,
+          details: detailData,
+          fotos: fotoData
+        }
+      });
+    } catch (error) {
+      server.log.error(error);
+      return reply.status(500).send({ success: false, error: 'Internal Server Error' });
+    }
+  });
+
+  // ==========================================
   // SYNC INSPECTION DATA (OFFLINE-FIRST)
   // ==========================================
   server.post('/sync/inspeksi', async (request, reply) => {
