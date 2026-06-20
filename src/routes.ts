@@ -331,7 +331,7 @@ export const setupRoutes = async (server: FastifyInstance) => {
       return reply.send({ success: true, results });
     } catch (error) {
       server.log.error(error);
-      return reply.status(500).send({ success: false, error: 'Failed to sync inspeksi' });
+      return reply.status(500).send({ success: false, error: 'Failed to sync inspeksi: ' + (error instanceof Error ? error.message : String(error)) });
     }
   });
 
