@@ -15,7 +15,11 @@ server.register(cors, {
   origin: '*',
 });
 
-server.register(multipart);
+server.register(multipart, {
+  limits: {
+    fileSize: 10 * 1024 * 1024 // 10MB limit
+  }
+});
 
 // Register routes
 server.register(setupRoutes, { prefix: '/api/v1' });

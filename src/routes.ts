@@ -271,9 +271,15 @@ export const setupRoutes = async (server: FastifyInstance) => {
           }
         }
         
+        let finalUserId = item.userId;
+        const existingUser = await db.select().from(users).where(eq(users.id, finalUserId)).limit(1);
+        if (existingUser.length === 0) {
+          finalUserId = 'USR01'; // Fallback to Admin user if not found (e.g., 'temp_user_id')
+        }
+
         const [newInspeksi] = await db.insert(inspeksi).values({
           pokokId: finalPokokId,
-          userId: item.userId,
+          userId: finalUserId,
           tanggalInspeksi: new Date(item.tanggalInspeksi),
           latitude: item.latitude,
           longitude: item.longitude,
